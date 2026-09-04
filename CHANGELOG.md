@@ -8,6 +8,28 @@ Newest first. `Unreleased` is what is on `main` and not yet tagged.
 
 ## Unreleased
 
+### The trail says what started a run, not only whose authority it had
+
+A routine runs as the person who set it up, and a Bot handing work to another Bot runs as the person
+who began the conversation. Both are correct, that is whose grants and whose connections are being
+used, and both meant an action taken while somebody slept was written into the audit trail as though
+they had taken it themselves. Telling the two apart meant correlating timestamps against
+`routine_runs` by hand, and there was nothing at all to correlate a hop against.
+
+Every audit row now also names what caused it: a person, a routine, another Bot handing work on, or
+the deployment itself. The Audit screen has a **Started by** column and a **Nobody watching** view
+that answers the question directly. An unattended run is the one nobody is there to notice going
+wrong, which is the reason it is worth being able to find.
+
+The fourth of those exists so the column never overclaims. Two rows have no person behind them at
+all: the boundary and isolation rows written at start-up, and the refusal written when a caller
+cannot be identified at all. Those say the deployment, not a person, and they stay out of
+**Nobody watching**, which asks what ran on somebody's authority rather than what the deployment did
+by itself.
+
+Nothing about existing rows changes. Every row already written, and every row a person's own click
+writes from now on, reads as a person, because that is what it was.
+
 ### A bad `COMPUTER_MEMORY_BYTES` refuses to start the supervisor, instead of capping a computer at 512 bytes
 
 `COMPUTER_MEMORY_BYTES=512m` used to parse as `512` via `parseInt`, which Docker accepts as a memory

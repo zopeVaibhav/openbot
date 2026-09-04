@@ -1,5 +1,9 @@
 import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
-import { type AuditStore, recordAuditEvent } from "../audit";
+import {
+  type AuditInitiator,
+  type AuditStore,
+  recordAuditEvent,
+} from "../audit";
 import {
   type ActionPolicy,
   evaluateActionPolicy,
@@ -2787,6 +2791,7 @@ export function createPluginStore(options: PluginStoreOptions) {
       args: Record<string, unknown>;
       botId: string;
       actorId: string;
+      initiator?: AuditInitiator;
     }): Promise<{ text: string; isError: boolean }> {
       const [serverId, ...rest] = input.ref.split("/");
       const toolName = rest.join("/");
@@ -2800,6 +2805,7 @@ export function createPluginStore(options: PluginStoreOptions) {
           eventType: "mcp.call_rejected",
           targetType: "mcp_tool",
           targetId: input.ref,
+          ...(input.initiator ? { initiator: input.initiator } : {}),
           payload: {
             actor: input.actorId,
             bot: input.botId,
@@ -2919,6 +2925,7 @@ export function createPluginStore(options: PluginStoreOptions) {
           eventType: "mcp.call_rejected",
           targetType: "mcp_tool",
           targetId: input.ref,
+          ...(input.initiator ? { initiator: input.initiator } : {}),
           payload: decided,
         });
       }
@@ -2957,6 +2964,7 @@ export function createPluginStore(options: PluginStoreOptions) {
           eventType: result.isError ? "mcp.call_failed" : "mcp.call_succeeded",
           targetType: "mcp_tool",
           targetId: input.ref,
+          ...(input.initiator ? { initiator: input.initiator } : {}),
           /*
            * The vendor's own words, when it is reporting a failure.
            *
@@ -2992,6 +3000,7 @@ export function createPluginStore(options: PluginStoreOptions) {
           eventType: "mcp.call_failed",
           targetType: "mcp_tool",
           targetId: input.ref,
+          ...(input.initiator ? { initiator: input.initiator } : {}),
           payload: {
             ...decided,
             failure: (error instanceof Error
